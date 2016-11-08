@@ -1,0 +1,8 @@
+# everything related to virtualenv
+Include/
+Lib/
+Scripts/
+tcl/
+dist/
+pip-selfcheck.json
+MANIFEST
