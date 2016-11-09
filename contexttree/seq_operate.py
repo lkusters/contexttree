@@ -54,4 +54,27 @@ def modelapply(model, seq):
     Apply the full tree model to a sequence and get resulting compression rate.
     """
 
-    return model.getratetree(FullTree(model.getdepth(), seq))
+    seqtree = FullTree(model.getdepth(), seq)
+    return model.getratetree(seqtree), seqtree.getrself()
+
+
+def modelsapply(models, seq):
+    """
+    Apply the full tree models to a sequence and get resulting compression
+    rates. note that models is a list object here
+    Note that for now we assume that the models are equal depth
+    """
+
+    model = models.pop(0)
+    depth = model.getdepth()
+    seqtree = FullTree(depth, seq)
+    rates = list()
+    rates.append(model.getratetree(seqtree))
+    for model in models:
+        if model.getdepth() == depth:
+            rates.append(model.getratetree(seqtree))
+        else:
+            raise ValueError(
+                "model depths {0} and {1} incompatible "
+                .format(depth,model.getdepth()))
+    return rates, seqtree.getrself()
