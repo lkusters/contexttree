@@ -4,6 +4,6 @@ setup(name='contexttree',
       version='0.4dev',
       description='contexttree package',
       author='Lieneke Kusters',
-      long_description=open('README.md').read(),
+      long_description=open('readme.md').read(),
       packages=['contexttree']
       )
