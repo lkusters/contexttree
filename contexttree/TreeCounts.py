@@ -116,14 +116,14 @@ class TreeCounts:
             sequences = filter(None, sequence.split('N'))
         else:
             sequences = [sequence]
-        for sequence in sequences:
 
+        for sequence in sequences:
             if len(sequence) <= self._maximumdepth:
                 # we need a sequence of at least length > self._maximumdepth
-                warnings.warn("sequence length {0}, is too short, return None".
-                              format(str(len(sequence)))
+                warnings.warn("sequence length {0}, is too short\n{1}".
+                              format(str(len(sequence)), sequence)
                               )
-                return None
+                continue
 
             # Now prepare the data
             if self._symbolcounts is None:
