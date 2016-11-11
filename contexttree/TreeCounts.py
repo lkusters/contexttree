@@ -61,7 +61,7 @@ class TreeCounts:
                 raise ValueError(
                             "Sequence has values that are not in alphabet"
                             " ({0}): {1} valid of total {2} symbols \n"
-                            "Also, only {3} are 'N' \n {4}"
+                            "Also, only {3} are 'N' \nsequence: {4}"
                             .format(ALPHABET, str(no_valid_symbols),
                                     str(len(sequence)),
                                     str(sequence.count('N')),
@@ -120,8 +120,8 @@ class TreeCounts:
         for sequence in sequences:
             if len(sequence) <= self._maximumdepth:
                 # we need a sequence of at least length > self._maximumdepth
-                warnings.warn("sequence length {0}, is too short\n{1}".
-                              format(str(len(sequence)), sequence)
+                warnings.warn("sequence length {0}, is too short\nsequence: {1}"
+                              .format(str(len(sequence)), sequence)
                               )
                 continue
 
