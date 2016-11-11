@@ -104,7 +104,7 @@ class TreeCounts:
                           "around the invalid characters, before model "
                           "construction in order to prevent invalid contexts."
                           )
-            sequence = sequence.ungap('N')
+            sequence = sequence.replace('N','')
         if len(sequence) <= self._maximumdepth:
             # we need a sequence of at least length > self._maximumdepth
             warnings.warn("sequence length {0}, is too short, return None".
