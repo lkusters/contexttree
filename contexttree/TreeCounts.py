@@ -55,10 +55,7 @@ class TreeCounts:
             if -no_valid_symbols + len(sequence) == countN:
                 warnings.warn(
                     "Sequence has values that are not in alphabet ({0}): "
-                    "{1} N's were found \n"
-                    .format(ALPHABET, str(countN),
-                            str(sequence), ALPHABET
-                            )
+                    "{1} N's were found".format(ALPHABET, str(countN))
                 )
             else:  # it was not N, so there is no 'support' for this symbol
                 raise ValueError(
