@@ -52,14 +52,14 @@ class TreeCounts:
         if not no_valid_symbols == len(sequence):
             # invalid
             warnings.warn(
-                "Sequence has values that are not in alphabet: "
+                "Sequence has values that are not in alphabet ({5}): "
                 "{0} valid of total {1} symbols \n"
                 "{2} U's, {3} N's\n {4}"
-                .format(str(no_valid_symbols), str(len(sequence)),
-                        str(sequence.count('U')), str(sequence.count('N'),
-                        str(sequence))
-                        ),
-                ALPHABET)
+                .format(ALPHABET, str(no_valid_symbols), str(len(sequence)),
+                        str(sequence.count('U')), str(sequence.count('N')),
+                        str(sequence)
+                        )
+                )
             return False  # sequence is invalid (we assume there is 'N')
         return True  # sequence is valid
 
