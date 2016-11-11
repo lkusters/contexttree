@@ -52,9 +52,12 @@ class TreeCounts:
         if not no_valid_symbols == len(sequence):
             # invalid
             raise ValueError(
-                "Sequence has values that are not in alphabet: " +
-                "{0} valid of total {1} symbols".format(str(no_valid_symbols),
-                                                        str(len(sequence))),
+                "Sequence has values that are not in alphabet: "
+                "{0} valid of total {1} symbols \n"
+                "{2} U's, {3} N's"
+                .format(str(no_valid_symbols), str(len(sequence)),
+                        str(sequence.count('U')), str(sequence.count('N'))
+                        ),
                 ALPHABET)
 
     def _verifytreedephts(self, tree):
