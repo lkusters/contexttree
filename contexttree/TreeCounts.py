@@ -107,57 +107,62 @@ class TreeCounts:
 
         # first verify if input is valid
         if not(self._verifyinputsequence(sequence)):
-            warnings.warn("For now, we remove invalid symbol, N, however, "
-                          "in the future, we want to split the sequences "
-                          "around the invalid characters, before model "
-                          "construction in order to prevent invalid contexts."
-                          )
-            sequence = sequence.replace('N', '')
-        if len(sequence) <= self._maximumdepth:
-            # we need a sequence of at least length > self._maximumdepth
-            warnings.warn("sequence length {0}, is too short, return None".
-                          format(str(len(sequence)))
-                          )
-            return None
-
-        # Now prepare the data
-        if self._symbolcounts is None:
-            counts = dict()
+            # warnings.warn("For now, we remove invalid symbol, N, however, "
+            #              "in the future, we want to split the sequences "
+            #              "around the invalid characters, before model "
+            #              "construction in order to prevent invalid contexts."
+            #              )
+            # sequence = sequence.replace('N', '')
+            sequences = filter(None, sequence.split('N'))
         else:
-            counts = self._symbolcounts
+            sequences = [sequence]
+        for sequence in sequences:
 
-        keys = dict(zip(ALPHABET, range(len(ALPHABET))))  # Conversion table
-        sequence = sequence.upper()  # upper case
+            if len(sequence) <= self._maximumdepth:
+                # we need a sequence of at least length > self._maximumdepth
+                warnings.warn("sequence length {0}, is too short, return None".
+                              format(str(len(sequence)))
+                              )
+                return None
 
-        # Special case, tree of depth 0
-        if self._maximumdepth == 0:
-            counts[''] = [sequence.count(ALPHABET[index]) for
-                          index in range(4)]
-            return counts
-
-        initcontext = ''
-        for i in range(self._maximumdepth):
-            initcontext += sequence[i]
-        sequence = sequence[self._maximumdepth:]
-        initcontext = initcontext[::-1]
-
-        # we start with initial context initcontext
-        context = initcontext
-        # now each next state is just a shift
-        for symbol in sequence:
-            if context in counts:
-                counts[context][keys[symbol]] += 1
+            # Now prepare the data
+            if self._symbolcounts is None:
+                counts = dict()
             else:
-                # context has not occured before, so initialize new context
-                # with 0 counts
-                counts[context] = [0 for sym in range(len(ALPHABET))]
-                counts[context][keys[symbol]] += 1
-            context = symbol+context[:-1]
-        self._initialcontext += [initcontext]
-        self._sequencelength += len(sequence)
+                counts = self._symbolcounts
 
-        self._symbolcounts = counts
-        self._rself = None  # just became invalid in case it was set before
+            keys = dict(zip(ALPHABET, range(len(ALPHABET))))  # Conversion table
+            sequence = sequence.upper()  # upper case
+
+            # Special case, tree of depth 0
+            if self._maximumdepth == 0:
+                counts[''] = [sequence.count(ALPHABET[index]) for
+                              index in range(4)]
+                return counts
+
+            initcontext = ''
+            for i in range(self._maximumdepth):
+                initcontext += sequence[i]
+            sequence = sequence[self._maximumdepth:]
+            initcontext = initcontext[::-1]
+
+            # we start with initial context initcontext
+            context = initcontext
+            # now each next state is just a shift
+            for symbol in sequence:
+                if context in counts:
+                    counts[context][keys[symbol]] += 1
+                else:
+                    # context has not occured before, so initialize new context
+                    # with 0 counts
+                    counts[context] = [0 for sym in range(len(ALPHABET))]
+                    counts[context][keys[symbol]] += 1
+                context = symbol+context[:-1]
+            self._initialcontext += [initcontext]
+            self._sequencelength += len(sequence)
+
+            self._symbolcounts = counts
+            self._rself = None  # just became invalid in case it was set before
 
     # Functions for updating the counts in the tree or combining trees
     def updatesymbolcounts(self, sequence):
