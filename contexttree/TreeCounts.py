@@ -51,17 +51,14 @@ class TreeCounts:
             no_valid_symbols += sequence.count(symbol)
         if not no_valid_symbols == len(sequence):
             # invalid
-            warnings.warn(
+            raise ValueError(
                 "Sequence has values that are not in alphabet: "
                 "{0} valid of total {1} symbols \n"
-                "{2} U's, {3} N's\n {4}"
+                "{2} U's, {3} N's"
                 .format(str(no_valid_symbols), str(len(sequence)),
-                        str(sequence.count('U')), str(sequence.count('N'),
-                        str(sequence))
+                        str(sequence.count('U')), str(sequence.count('N'))
                         ),
                 ALPHABET)
-            return False  # sequence is invalid (we assume there is 'N')
-        return True  # sequence is valid
 
     def _verifytreedephts(self, tree):
         """ verify that the input tree has the same depth as the source
@@ -100,13 +97,7 @@ class TreeCounts:
         """
 
         # first verify if input is valid
-        if not(self._verifyinputsequence(sequence)):
-            warnings.warn("For now, we remove invalid symbol, N, however, "
-                          "in the future, we want to split the sequences "
-                          "around the invalid characters, before model "
-                          "construction in order to prevent invalid contexts."
-                          )
-            sequence = sequence.ungap('N') 
+        self._verifyinputsequence(sequence)
         if len(sequence) <= self._maximumdepth:
             # we need a sequence of at least length > self._maximumdepth
             warnings.warn("sequence length {0}, is too short, return None".
