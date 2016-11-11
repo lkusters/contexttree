@@ -50,16 +50,27 @@ class TreeCounts:
         for symbol in ALPHABET:
             no_valid_symbols += sequence.count(symbol)
         if not no_valid_symbols == len(sequence):
-            # invalid
-            warnings.warn(
-                "Sequence has values that are not in alphabet ({5}): "
-                "{0} valid of total {1} symbols \n"
-                "{2} U's, {3} N's\n {4}"
-                .format(ALPHABET, str(no_valid_symbols), str(len(sequence)),
-                        str(sequence.count('U')), str(sequence.count('N')),
-                        str(sequence)
-                        )
+            # invalid symbols are in the sequence
+            countN = sequence.count('N')
+            if -no_valid_symbols + len(sequence) == countN:
+                warnings.warn(
+                    "Sequence has values that are not in alphabet ({0}): "
+                    "{1} N's were found \n"
+                    .format(ALPHABET, str(countN),
+                            str(sequence), ALPHABET
+                            )
                 )
+            else:  # it was not N, so there is no 'support' for this symbol
+                raise ValueError(
+                            "Sequence has values that are not in alphabet"
+                            " ({0}): {1} valid of total {2} symbols \n"
+                            "Also, only {3} are 'N' \n {4}"
+                            .format(ALPHABET, str(no_valid_symbols),
+                                    str(len(sequence)),
+                                    str(sequence.count('N')),
+                                    str(sequence)
+                                    )
+                             )
 
     def _verifytreedephts(self, tree):
         """ verify that the input tree has the same depth as the source
@@ -104,7 +115,7 @@ class TreeCounts:
                           "around the invalid characters, before model "
                           "construction in order to prevent invalid contexts."
                           )
-            sequence = sequence.replace('N','')
+            sequence = sequence.replace('N', '')
         if len(sequence) <= self._maximumdepth:
             # we need a sequence of at least length > self._maximumdepth
             warnings.warn("sequence length {0}, is too short, return None".
