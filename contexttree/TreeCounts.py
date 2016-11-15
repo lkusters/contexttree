@@ -116,7 +116,9 @@ class TreeCounts:
             #              "construction in order to prevent invalid contexts."
             #              )
             # sequence = sequence.replace('N', '')
-            sequences = filter(None, sequence.split('N'))
+            sequences = filter(lambda s: len(s) > self._maximumdepth,
+                               sequence.split('N'))
+            # filter only sequences that have sufficient length
         else:
             sequences = [sequence]
 
