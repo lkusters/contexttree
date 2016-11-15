@@ -9,6 +9,7 @@ functions that use FullTree class to operate on DNA sequences
 
 from contexttree.FullTree import FullTree
 from Bio.Seq import Seq
+import warnings
 
 
 def seqdistance(depth, seq1, seq2, rev):
@@ -46,6 +47,7 @@ def seqsmodel(depth, seqgenlist, rev):
     else:
         for seq in seqgenlist:
             tree.updatesymbolcounts(seq)
+    warnings.warn("dummy warning message")
     return tree
 
 
