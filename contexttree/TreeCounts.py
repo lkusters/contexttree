@@ -57,6 +57,7 @@ class TreeCounts:
                     "Sequence has values that are not in alphabet ({0}): "
                     "{1} N's were found".format(ALPHABET, str(countN))
                 )
+                return False
             else:  # it was not N, so there is no 'support' for this symbol
                 raise ValueError(
                             "Sequence has values that are not in alphabet"
@@ -68,6 +69,8 @@ class TreeCounts:
                                     str(sequence)
                                     )
                              )
+        else:
+            return True  # valid sequence: no invalid symbols found
 
     def _verifytreedephts(self, tree):
         """ verify that the input tree has the same depth as the source
