@@ -171,7 +171,7 @@ class TreeCounts:
                         counts[context] = [0 for sym in range(len(ALPHABET))]
                         counts[context][keys[symbol]] += 1
                     context = symbol+context[:-1]
-            self._initialcontext += [initcontext]
+            # self._initialcontext += [initcontext]
             self._sequencelength += len(sequence)
 
         self._symbolcounts = counts
