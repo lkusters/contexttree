@@ -174,8 +174,8 @@ class TreeCounts:
             # self._initialcontext += [initcontext]
             self._sequencelength += len(sequence)
 
-        self._symbolcounts = counts
-        self._rself = None  # just became invalid in case it was set before
+            self._symbolcounts = counts
+            self._rself = None  # just became invalid in case it was set before
         del sequences
 
     # Functions for updating the counts in the tree or combining trees
