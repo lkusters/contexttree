@@ -231,6 +231,6 @@ class TreeCounts:
             setattr(tree, attr, copy.deepcopy(getattr(self, attr)))
 
         return tree
+
     def getdepth(self):
-        
         return self._maximumdepth

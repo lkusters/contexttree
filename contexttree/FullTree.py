@@ -44,6 +44,10 @@ class FullTree(TreeCounts):
         """
 
         self._verifysametype(tree)
+
+        if len(tree._symbolcounts) == 0:  # the tree is empty
+            return 0
+
         symbolprobs = self.getprobs()
 
         rate = 0
