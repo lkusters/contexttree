@@ -20,7 +20,11 @@ class FullTree(TreeCounts):
         rate, rself)
         """
         rself = 0
-
+        
+        if len(self._sequencelength) == 0:
+            self._rself = None
+            return dict()
+            
         symbollogprobs = dict()
         for key, counts in self._symbolcounts.items():
             logprobs = self._counts2logprobs(counts)
