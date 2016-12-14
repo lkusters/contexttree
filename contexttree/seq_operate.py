@@ -78,5 +78,5 @@ def modelsapply(models, seq):
         else:
             raise ValueError(
                 "model depths {0} and {1} incompatible "
-                .format(depth,model.getdepth()))
+                .format(depth, model.getdepth()))
     return rates, seqtree.getrself()

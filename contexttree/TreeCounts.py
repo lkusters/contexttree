@@ -32,6 +32,7 @@ class TreeCounts:
         self._sequencelength = 0
         self._maximumdepth = depth
         self._rself = None  # achievable compression rate of full source tree
+        self._symbollogprobs = dict()
 
         if sequence is not None:
             self._countsymbols(sequence)
@@ -109,32 +110,22 @@ class TreeCounts:
         """
 
         # first verify if input is valid
-        if not(self._verifyinputsequence(sequence)):
-            # warnings.warn("For now, we remove invalid symbol, N, however, "
-            #              "in the future, we want to split the sequences "
-            #              "around the invalid characters, before model "
-            #              "construction in order to prevent invalid contexts."
-            #              )
-            # sequence = sequence.replace('N', '')
+        if len(sequence) <= self._maximumdepth:
+            warnings.warn("sequence length {0}, is too short\nsequence: {1}"
+                          .format(str(len(sequence)), sequence)
+                          )
+            sequences = []
+        elif not(self._verifyinputsequence(sequence)):
             sequences = filter(lambda s: len(s) > self._maximumdepth,
                                sequence.split('N'))
-            # filter only sequences that have sufficient length
         else:
             sequences = [sequence]
 
+        # Now initialize the counts
+        counts = self._symbolcounts
+        # Prepare conversion table
+        keys = dict(zip(ALPHABET, range(len(ALPHABET))))
         for sequence in sequences:
-            if len(sequence) <= self._maximumdepth:
-                # we need a sequence of at least length > self._maximumdepth
-                warnings.warn("sequence length {0}, is too short\nsequence: {1}"
-                              .format(str(len(sequence)), sequence)
-                              )
-                continue
-
-            # Now prepare the data
-            counts = self._symbolcounts
-
-            # Prepare conversion table
-            keys = dict(zip(ALPHABET, range(len(ALPHABET))))
             sequence = sequence.upper()  # upper case
 
             # Special case, tree of depth 0
@@ -171,8 +162,8 @@ class TreeCounts:
             # self._initialcontext += [initcontext]
             self._sequencelength += len(sequence)
 
-            self._symbolcounts = counts
-            self._rself = None  # just became invalid in case it was set before
+        self._symbolcounts = counts
+        self._rself = None  # just became invalid in case it was set before
         del sequences
 
     # Functions for updating the counts in the tree or combining trees
