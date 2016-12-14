@@ -28,7 +28,7 @@ class TreeCounts:
             raise ValueError("Invalid maximum depth", depth)
 
         self._initialcontext = []
-        self._symbolcounts = None
+        self._symbolcounts = dict()
         self._sequencelength = 0
         self._maximumdepth = depth
         self._rself = None  # achievable compression rate of full source tree
@@ -131,10 +131,7 @@ class TreeCounts:
                 continue
 
             # Now prepare the data
-            if self._symbolcounts is None:
-                counts = dict()
-            else:
-                counts = self._symbolcounts
+            counts = self._symbolcounts
 
             # Prepare conversion table
             keys = dict(zip(ALPHABET, range(len(ALPHABET))))
@@ -186,7 +183,7 @@ class TreeCounts:
         sequence:   (str) The sequence for which we count the symbolcounts
         """
 
-        if self._symbolcounts is None:
+        if len(self._symbolcounts)==0:
             warnings.warn("cannot update, since no symbols were counted " +
                           "yet, initializing with current input sequence " +
                           "instead")
@@ -199,13 +196,13 @@ class TreeCounts:
 
         self._verifytreedephts(tree)
 
-        if self._symbolcounts is None and tree._symbolcounts is None:
+        if len(self._symbolcounts)==0 and len(tree._symbolcounts)==0:
             warnings.warn("combining with an empty tree")
             # do nothing
-        elif tree._symbolcounts is None:
+        elif len(tree._symbolcounts)==0:
             warnings.warn("combining with an empty tree")
             # do nothing
-        elif self._symbolcounts is None:
+        elif len(self._symbolcounts)==0:
             warnings.warn("combining with an empty tree")
             # copy tree to self
             for attr in vars(tree):
