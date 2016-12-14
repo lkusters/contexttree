@@ -21,7 +21,7 @@ class FullTree(TreeCounts):
         """
         rself = 0
         
-        if len(self._sequencelength) == 0:
+        if self._sequencelength == 0:
             self._rself = None
             return dict()
             
