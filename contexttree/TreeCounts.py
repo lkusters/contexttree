@@ -12,6 +12,8 @@ import copy
 
 ALPHABET = "ACGT"
 base2bin = {'A': 0b0, 'C': 0b1, 'G': 0b10, 'T': 0b11}
+bin2base = ['A', 'C', 'G', 'T']
+# TODO Rself support!
 
 
 class TreeCounts:
@@ -29,7 +31,7 @@ class TreeCounts:
             raise ValueError("Invalid maximum depth", depth)
 
         self._initialcontext = []
-        self._symbolcounts = [[0, 0, 0, 0] for i in range(4**depth)]
+        self._symbolcounts = [[0, 0, 0, 0] for idx in range(4**depth)]
         self._sequencelength = 0
         self._maximumdepth = depth
 
@@ -37,9 +39,12 @@ class TreeCounts:
             self._countsymbols(sequence)
 
     def __str__(self):
+        depth = self._maximumdepth
         return "tree: {2} of depth {0}, initcontext {1}".format(
-           self._maximumdepth, self._initialcontext, type(self)) +\
-           "\n symbolcounts: \n {0}".format(str(self._symbolcounts))
+           depth, self._initialcontext, type(self)) +\
+           "\n symbolcounts: \n" + str(
+            [''.join([bin2base[idx & 4**d] for d in range(depth)]) + ' ' +
+             str(self._symbolcounts[idx])+'\n' for idx in range(4**depth)])
 
     # Verification of input sequence / tree
     def _verifyinputsequence(self, sequence):
@@ -120,51 +125,26 @@ class TreeCounts:
         else:
             sequences = [sequence]
 
+        mask = 4**depth - 1
         for sequence in sequences:
             sequence = sequence.upper()  # upper case
-
+            depth = 2 #self._maximumdepth
+            _symbolcounts = [[0, 0, 0, 0] for i in range(4**depth)]
+            sequence = 'CGTAA'
             initcontext = 0b0
-            # for i in range(self._maximumdepth):
             for i in range(depth):
-                initcontext = initcontext << 1
+                initcontext = initcontext << 2
                 initcontext += base2bin[sequence[i]]
 
-            # Special case, tree of depth 0
-            if self._maximumdepth == 0:
-                initcontext = ''
-                if not ('' in counts):
-                    counts[''] = [sequence.count(ALPHABET[index]) for
-                                  index in range(4)]
-                else:
-                    newcounts = [sequence.count(ALPHABET[index]) for
-                                 index in range(4)]
-                    counts[''] = [a+b for a, b in zip(counts[''],
-                                                      newcounts)]
+            sequence = sequence[depth:]
+            for symbol in sequence:
+                _symbolcounts[initcontext][base2bin[symbol]] += 1
+                initcontext = (initcontext << 2) & mask
+                initcontext += base2bin[symbol]
+            print(_symbolcounts)
 
-            else:
-                initcontext = ''
-                for i in range(self._maximumdepth):
-                    initcontext += sequence[i]
-                sequence = sequence[self._maximumdepth:]
-                initcontext = initcontext[::-1]
-
-                # we start with initial context initcontext
-                context = initcontext
-                # now each next state is just a shift
-                for symbol in sequence:
-                    if context in counts:
-                        counts[context][keys[symbol]] += 1
-                    else:
-                        # context has not occured before, so initialize
-                        # new context with 0 counts
-                        counts[context] = [0 for sym in range(len(ALPHABET))]
-                        counts[context][keys[symbol]] += 1
-                    context = symbol+context[:-1]
-            # self._initialcontext += [initcontext]
             self._sequencelength += len(sequence)
 
-        self._symbolcounts = counts
-        self._rself = None  # just became invalid in case it was set before
         del sequences
 
     # Functions for updating the counts in the tree or combining trees
@@ -209,7 +189,6 @@ class TreeCounts:
                     self._symbolcounts[key] = val
             self._sequencelength += tree._sequencelength
             self._initialcontext += [tree._initialcontext]
-            self._rself = None  # just became invalid and should be updated
 
     def getcopy(self):
         """ Make a copy of this tree and return it
