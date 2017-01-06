@@ -11,6 +11,7 @@ import warnings
 import copy
 
 ALPHABET = "ACGT"
+base2bin = {'A': 0b0, 'C': 0b1, 'G': 0b10, 'T': 0b11}
 
 
 class TreeCounts:
@@ -28,11 +29,9 @@ class TreeCounts:
             raise ValueError("Invalid maximum depth", depth)
 
         self._initialcontext = []
-        self._symbolcounts = dict()
+        self._symbolcounts = [[0, 0, 0, 0] for i in range(4**depth)]
         self._sequencelength = 0
         self._maximumdepth = depth
-        self._rself = None  # achievable compression rate of full source tree
-        self._symbollogprobs = dict()
 
         if sequence is not None:
             self._countsymbols(sequence)
@@ -105,7 +104,7 @@ class TreeCounts:
         sequence:   (str) The sequence for which we count the symbolcounts
 
         Finds and stores:
-        counts: (dict) keys are occuring contexts (tuple), counts are
+        counts: (list) idxs correspond to occuring contexts, counts are
                 symbol counts for symbols of alphabet given context
         """
 
@@ -121,12 +120,14 @@ class TreeCounts:
         else:
             sequences = [sequence]
 
-        # Now initialize the counts
-        counts = self._symbolcounts
-        # Prepare conversion table
-        keys = dict(zip(ALPHABET, range(len(ALPHABET))))
         for sequence in sequences:
             sequence = sequence.upper()  # upper case
+
+            initcontext = 0b0
+            # for i in range(self._maximumdepth):
+            for i in range(depth):
+                initcontext = initcontext << 1
+                initcontext += base2bin[sequence[i]]
 
             # Special case, tree of depth 0
             if self._maximumdepth == 0:

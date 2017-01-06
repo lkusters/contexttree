@@ -10,11 +10,15 @@ from contexttree.TreeCounts import TreeCounts
 import warnings
 
 ALPHABET = "ACGT"
+base2bin = {'A': 0b0, 'C': 0b1, 'G': 0b10, 'T': 0b11}
 
 class FullTree(TreeCounts):
     """ Inherits from TreeCounts, adds functionality of rates
     probabilities and rates calculation
     """
+
+    _symbollogprobs = []
+    _rself = None
 
     def getprobs(self):
         """ Use the counts to compute the corresponding probabilities of the
