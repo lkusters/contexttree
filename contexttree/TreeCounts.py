@@ -125,12 +125,11 @@ class TreeCounts:
         else:
             sequences = [sequence]
 
+        depth = self._maximumdepth
         mask = 4**depth - 1
         for sequence in sequences:
             sequence = sequence.upper()  # upper case
-            depth = 2 #self._maximumdepth
-            _symbolcounts = [[0, 0, 0, 0] for i in range(4**depth)]
-            sequence = 'CGTAA'
+
             initcontext = 0b0
             for i in range(depth):
                 initcontext = initcontext << 2
@@ -138,10 +137,9 @@ class TreeCounts:
 
             sequence = sequence[depth:]
             for symbol in sequence:
-                _symbolcounts[initcontext][base2bin[symbol]] += 1
+                self._symbolcounts[initcontext][base2bin[symbol]] += 1
                 initcontext = (initcontext << 2) & mask
                 initcontext += base2bin[symbol]
-            print(_symbolcounts)
 
             self._sequencelength += len(sequence)
 
@@ -155,7 +153,7 @@ class TreeCounts:
         sequence:   (str) The sequence for which we count the symbolcounts
         """
 
-        if len(self._symbolcounts)==0:
+        if len(self._symbolcounts) == 0:
             warnings.warn("cannot update, since no symbols were counted " +
                           "yet, initializing with current input sequence " +
                           "instead")
@@ -168,27 +166,25 @@ class TreeCounts:
 
         self._verifytreedephts(tree)
 
-        if len(self._symbolcounts)==0 and len(tree._symbolcounts)==0:
+        if len(self._symbolcounts) == 0 and len(tree._symbolcounts) == 0:
             warnings.warn("combining with an empty tree")
             # do nothing
-        elif len(tree._symbolcounts)==0:
+        elif len(tree._symbolcounts) == 0:
             warnings.warn("combining with an empty tree")
             # do nothing
-        elif len(self._symbolcounts)==0:
+        elif len(self._symbolcounts) == 0:
             warnings.warn("combining with an empty tree")
             # copy tree to self
             for attr in vars(tree):
                 setattr(self, attr, getattr(tree, attr))
         else:
-            for key, val in tree._symbolcounts.items():
-                if key in self._symbolcounts:
-                    self._symbolcounts[key] = [a+b for (a, b) in
-                                               zip(self._symbolcounts[key],
-                                                   val)]
-                else:
-                    self._symbolcounts[key] = val
+            for idx in range(len(self._symbolcounts)):
+                mycounts = self._symbolcounts
+                yourcounts = tree._symbolcounts
+                self._symbolcounts = [a+b for a, b in zip(mycounts, yourcounts)]
+
             self._sequencelength += tree._sequencelength
-            self._initialcontext += [tree._initialcontext]
+            self._initialcontext = None # became invalid
 
     def getcopy(self):
         """ Make a copy of this tree and return it

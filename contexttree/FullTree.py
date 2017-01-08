@@ -7,10 +7,11 @@ Created on Thu Oct  6 13:05:40 2016
 
 import copy
 from contexttree.TreeCounts import TreeCounts
-import warnings
 
 ALPHABET = "ACGT"
 base2bin = {'A': 0b0, 'C': 0b1, 'G': 0b10, 'T': 0b11}
+bin2base = ['A', 'C', 'G', 'T']
+
 
 class FullTree(TreeCounts):
     """ Inherits from TreeCounts, adds functionality of rates
@@ -25,19 +26,21 @@ class FullTree(TreeCounts):
         symbols in log2-space and return (also store achievable compression
         rate, rself)
         """
-        rself = 0
+
         if not (self._rself is None):
             # the value is already there
             return self._symbollogprobs
 
         if self._sequencelength == 0:
             self._rself = None
-            return dict()
+            return []
 
-        symbollogprobs = dict()
-        for key, counts in self._symbolcounts.items():
+        symbollogprobs = []
+        rself = 0
+        for idx in range(len(self._symbolcounts)):
+            counts = self._symbolcounts[idx]
             logprobs = self._counts2logprobs(counts)
-            symbollogprobs[key] = logprobs
+            symbollogprobs.append(logprobs)
             rself -= sum([a*b for a, b in zip(counts, logprobs)])
         self._rself = rself/self._sequencelength
         self._symbollogprobs = symbollogprobs
@@ -59,17 +62,17 @@ class FullTree(TreeCounts):
 
         self._verifysametype(tree)
 
-        if len(tree._symbolcounts) == 0:  # the tree is empty
+        if tree._sequencelength == 0:  # the tree is empty
             return 0
+        if self._sequencelength == 0:  # the model is empty
+            return 2
 
         symbolprobs = self.getprobs()
 
         rate = 0
-        for key, val in tree._symbolcounts.items():
-            if key in symbolprobs:
-                rate -= sum([a*b for a, b in zip(val, symbolprobs[key])])
-            else:
-                rate -= sum([a*-2 for a in val])
+        for counts, probs in zip(tree._symbolcounts, symbolprobs):
+            rate -= sum([c*p for c, p in zip(counts, probs)])
+
         return rate/tree._sequencelength
 
     def getratesequence(self, sequence):
@@ -79,59 +82,6 @@ class FullTree(TreeCounts):
         raise ValueError(
                          "Sorry this functionality has not been " +
                          "implemented yet")
-
-        # first verify if input is valid
-        if len(sequence) <= self._maximumdepth:
-            warnings.warn("sequence length {0}, is too short\nsequence: {1}"
-                          .format(str(len(sequence)), sequence)
-                          )
-            sequences = []
-        elif not(self._verifyinputsequence(sequence)):
-            sequences = filter(lambda s: len(s) > self._maximumdepth,
-                               sequence.split('N'))
-        else:
-            sequences = [sequence]
-
-        # Now initialize the rate
-        rate = 0
-        seqlen = 0
-        # Prepare conversion table
-        keys = dict(zip(ALPHABET, range(len(ALPHABET))))
-        symbolprobs = self.getprobs()
-
-        for sequence in sequences:
-            sequence = sequence.upper()  # upper case
-
-            # Special case, tree of depth 0
-            if self._maximumdepth == 0:
-                rate -= sum([sequence.count(ALPHABET[index]) *
-                             symbolprobs[ALPHABET[index]] for
-                            index in range(4)])
-                seqlen += len(sequence)
-
-            else:
-                initcontext = ''
-                for i in range(self._maximumdepth):
-                    initcontext += sequence[i]
-                sequence = sequence[self._maximumdepth:]
-                initcontext = initcontext[::-1]
-
-                # we start with initial context initcontext
-                context = initcontext
-                # now each next state is just a shift
-                for symbol in sequence:
-                    if context in symbolprobs:
-                        rate += symbolprobs[context][keys[symbol]]
-                        seqlen += 1
-                    else:
-                        rate += 1/4  # default value
-                        seqlen += 1
-
-                    context = symbol+context[:-1]
-        if seqlen > 0:
-            return rate/seqlen
-        else:
-            return 0
 
     def getdivergence(self, tree):
         """ This function returns the estimated KL-Divergence of the
