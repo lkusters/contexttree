@@ -23,11 +23,10 @@ def seqdistance(depth, seq1, seq2, rev):
     tree1 = FullTree(depth, seq1)
     tree2 = FullTree(depth, seq2)
     if rev:
-        tree1.updatesymbolcounts(str(Seq(seq1).reverse_complement()))
-        tree2.updatesymbolcounts(str(Seq(seq2).reverse_complement()))
+        tree1.updatesymbolcounts(str(Seq(seq).reverse_complement()))
+        tree2.updatesymbolcounts(str(Seq(seq).reverse_complement()))
 
     return tree1.getdistance(tree2)
-
 
 def seqsmodel(depth, seqgenlist, rev):
     """
@@ -38,15 +37,17 @@ def seqsmodel(depth, seqgenlist, rev):
     """
 
     seq = next(seqgenlist)
-    tree = FullTree(depth, seq)
     if rev:
+        tree = FullTree(depth, seq)
         tree.updatesymbolcounts(str(Seq(seq).reverse_complement()))
         for seq in seqgenlist:
             tree.updatesymbolcounts(seq)
             tree.updatesymbolcounts(str(Seq(seq).reverse_complement()))
     else:
+        tree = FullTree(depth, seq)
         for seq in seqgenlist:
             tree.updatesymbolcounts(seq)
+
     sys.stderr.write('seqsmodel(): succesfully finished the loops\n')
     return tree
 
