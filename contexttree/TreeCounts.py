@@ -30,7 +30,6 @@ class TreeCounts:
         if not isinstance(depth, int):
             raise ValueError("Invalid maximum depth", depth)
 
-        self._initialcontext = []
         self._symbolcounts = [[0, 0, 0, 0] for idx in range(4**depth)]
         self._sequencelength = 0
         self._maximumdepth = depth
@@ -40,11 +39,22 @@ class TreeCounts:
 
     def __str__(self):
         depth = self._maximumdepth
-        return "tree: {2} of depth {0}, initcontext {1}".format(
-           depth, self._initialcontext, type(self)) +\
-           "\n symbolcounts: \n" + str(
-            [''.join([bin2base[idx & 4**d] for d in range(depth)]) + ' ' +
+        return "tree: {1} of depth {0}".format(
+           depth, type(self)) +\
+           "\n symbolcounts: \n" + ''.join([
+            self.idx2kmer(idx) + ' ' + 
              str(self._symbolcounts[idx])+'\n' for idx in range(4**depth)])
+
+    def idx2kmer(self, idx):
+        """ index in matrix to kmer converter (note we read the context from
+        left to right, which is reversed from the original CTW paper) """
+
+        mask = 0b11
+        kmer = ''
+        for d in range(self._maximumdepth):
+            kmer = bin2base[idx & mask] + kmer
+            idx = idx >> 2
+        return kmer
 
     # Verification of input sequence / tree
     def _verifyinputsequence(self, sequence):
@@ -184,7 +194,6 @@ class TreeCounts:
                 self._symbolcounts = [a+b for a, b in zip(mycounts, yourcounts)]
 
             self._sequencelength += tree._sequencelength
-            self._initialcontext = None # became invalid
 
     def getcopy(self):
         """ Make a copy of this tree and return it
