@@ -42,8 +42,8 @@ class TreeCounts:
         return "tree: {1} of depth {0}".format(
            depth, type(self)) +\
            "\n symbolcounts: \n" + ''.join([
-            self.idx2kmer(idx) + ' ' + 
-             str(self._symbolcounts[idx])+'\n' for idx in range(4**depth)])
+            self.idx2kmer(idx) + ' ' +
+            str(self._symbolcounts[idx])+'\n' for idx in range(4**depth)])
 
     def idx2kmer(self, idx):
         """ index in matrix to kmer converter (note we read the context from
@@ -72,7 +72,7 @@ class TreeCounts:
                     "Sequence has values that are not in alphabet ({0}): "
                     "{1} N's were found".format(ALPHABET, str(countN))
                 )
-                return False
+                return False  # need to split the sequence (to remove N's)
             else:  # it was not N, so there is no 'support' for this symbol
                 raise ValueError(
                             "Sequence has values that are not in alphabet"
@@ -138,22 +138,20 @@ class TreeCounts:
         depth = self._maximumdepth
         mask = 4**depth - 1
         for sequence in sequences:
-            sequence = sequence.upper()  # upper case
+            # sequence = sequence.upper()  # upper case
+            # conversion not needed since sequence is already verified
 
             initcontext = 0b0
-            for i in range(depth):
+            for symbol in sequence[:depth]:
                 initcontext = initcontext << 2
-                initcontext += base2bin[sequence[i]]
+                initcontext += base2bin[symbol]
 
-            sequence = sequence[depth:]
-            for symbol in sequence:
+            for symbol in sequence[depth:]:
                 self._symbolcounts[initcontext][base2bin[symbol]] += 1
                 initcontext = (initcontext << 2) & mask
                 initcontext += base2bin[symbol]
 
-            self._sequencelength += len(sequence)
-
-        del sequences
+            self._sequencelength += len(sequence)-depth
 
     # Functions for updating the counts in the tree or combining trees
     def updatesymbolcounts(self, sequence):
@@ -191,7 +189,8 @@ class TreeCounts:
             for idx in range(len(self._symbolcounts)):
                 mycounts = self._symbolcounts
                 yourcounts = tree._symbolcounts
-                self._symbolcounts = [a+b for a, b in zip(mycounts, yourcounts)]
+                self._symbolcounts = [a+b for a, b in
+                                      zip(mycounts, yourcounts)]
 
             self._sequencelength += tree._sequencelength
 
